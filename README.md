@@ -6,7 +6,7 @@ Composta por jobs, são exatamente as etapas que a pipeline deve executar.<br>
 
 ```
 > cd install
-> edit files/gitlab.rb (external_url 'http://192.168.0.220')
+!! edit files/gitlab.rb (external_url 'http://192.168.0.220')
 > vagrant up
 > vagrant ssh -c 'sudo cat /etc/gitlab/initial_root_password | grep Password:' (anotar!)
 
@@ -16,6 +16,11 @@ http://192.168.0.220
 
 <kbd>
     <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/090220221639.jpg">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/090220221642.jpg">
 </kbd>
 <br />
 <br />
