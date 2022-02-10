@@ -27,22 +27,23 @@ http://192.168.0.220
 <br />
 Criar novo projeto.<br>
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221010.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221010.png">
 </kbd>
 <br />
 <br />
 Configurar o runner.<br>
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221040.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221040.png">
 </kbd>
 <br />
 <br />
 Anotar token!
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221101.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221101.png">
 </kbd>
 <br />
 <br />
+
 ```
 Acessar servidor gitlab e executar o registro do Runner.
 > cd install
@@ -66,7 +67,7 @@ Acessar servidor gitlab e executar o registro do Runner.
 Criar .gitlab-ci.yml<br>
 Irá conter todos os jobs e serviços que a pipeline irá executar.
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221021.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221021.png">
 </kbd>
 <br />
 <br />
