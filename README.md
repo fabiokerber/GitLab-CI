@@ -83,18 +83,18 @@ iniciando com gitlab-ci
 ```
 
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221107.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221107.png">
 </kbd>
 <br />
 <br />
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221108.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221108.png">
 </kbd>
 <br />
 <br />
 CI Lint para validação manual de código.
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221127.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221127.png">
 </kbd>
 <br />
 <br />
