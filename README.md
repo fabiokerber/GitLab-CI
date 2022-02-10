@@ -7,9 +7,10 @@ Composta por jobs, são exatamente as etapas que a pipeline deve executar.<br>
 # Instalação inicial GitLab
 ```
 > cd install
+!! edit .env (GITLAB_IP='192.168.0.220')
 !! edit files/gitlab.rb (external_url 'http://192.168.0.220')
-> vagrant up
-> vagrant ssh -c 'sudo cat /etc/gitlab/initial_root_password | grep Password:' (anotar!)
+> vagrant up gitlab_srv
+> vagrant ssh gitlab_srv -c 'sudo cat /etc/gitlab/initial_root_password | grep Password:' (anotar!)
 
 http://192.168.0.220
     root | (password)
