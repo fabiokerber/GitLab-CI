@@ -26,6 +26,9 @@ http://192.168.0.220
 </kbd>
 <br />
 <br />
+Criar novo usuário admin.<br>
+<br />
+<br />
 Criar novo projeto.<br>
 <kbd>
     <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221010.png">
