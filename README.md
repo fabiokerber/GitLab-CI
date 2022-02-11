@@ -201,3 +201,60 @@ build-docker:
 ```
     $ git add . && git commit -m "Iniciando a pipeline" && git push
 ```
+
+# Trabalhando com Variáveis 
+Exemplo realizando login no DockerHub para publicar a imagem.<br>
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+services:
+- docker:dind:
+
+before_script:
+- docker info
+- docker login - u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+build-docker:
+    stage: build
+    script:
+    - docker build - t minha-imagem .
+    - docker tag minha-imagem <usuario_dockerhub>/minha-imagem: latest
+    - docker push <usuario_dockerhub>/minha-imagem: latest
+```
+Essas mesmas variáveis serão configuradas dentro da pipeline.
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221056.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221057.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221058.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221101.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221102.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221103.png">
+</kbd>
+<br />
+<br />
