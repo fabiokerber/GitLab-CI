@@ -178,11 +178,8 @@ tarefa1:
 <br />
 
 # Build Dockerfile (aplicação)
-before_script:<br>
-- docker info<br>
-<br>
-Executa o "docker info" antes de todos os jobs.<br>
-
+O "services" e o "before_script" antes dos stages, então os mesmos serão executados em todos os jobs/stages.<br>
+Obs: dind = Docker in Docker<br>
 ```
 > cd install
 > vagrant ssh centos_srv02
@@ -272,10 +269,12 @@ Essas mesmas variáveis serão configuradas dentro da pipeline.
 Adicionando as dependências da aplicação e utilizando a tag "executor-tarefas".<br>
 Utilizando esta tag, o GitLab sabe qual runner ele irá utilizar.<br>
 Já as dependências "forçam" uma sequência, ou seja, uma determinada etapa só será executada, quando a anterior for realizada com sucesso.<br>
-GitLab se divide em três passos:<br>
-1. Build<br>
-2. Testes<br>
-3. Deploy<br>
+Boas práticas definir as stages de forma correta.<br>
+GitLab se divide basicamente em quatro passos podendo ser expandidos:<br>
+1. Pre-Build<br>
+2. Build<br>
+3. Testes<br>
+4. Deploy<br>
 
 ```
 > cd install
@@ -286,6 +285,12 @@ GitLab se divide em três passos:<br>
 ```
 image: docker:stable
 
+stages:
+- pre-build
+- build
+- test
+- deploy
+
 services:
 - docker:dind
 
@@ -293,7 +298,7 @@ before_script:
 - docker info
 
 build-docker:
-  stage: build
+  stage: pre-build
   tags:
   - executor-tarefas
   script:
@@ -308,3 +313,10 @@ build-project:
   script:
   - echo "runner"
 ```
+
+Pipeline com os stages definidos e o segundo aguardando o primeiro finalizar com sucesso.<br>
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221409.png">
+</kbd>
+<br />
+<br />
