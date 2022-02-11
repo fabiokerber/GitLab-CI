@@ -100,7 +100,7 @@ iniciando com gitlab-ci
 <br />
 <br />
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/100220221108.png">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221035.png">
 </kbd>
 <br />
 <br />
@@ -165,7 +165,7 @@ Adicionar chave pública ao GitLab<br>
 tarefa1:
   script:
   - echo "hello world"
-  - echo $date
+  - date
 ```
 ```
     $ git add . && git commit -m "Iniciando a pipeline" && git push
