@@ -16,7 +16,7 @@ Composta por jobs, são exatamente as etapas que a pipeline deve executar.<br>
 > cd install
 !! edit .env (GITLAB_IP='192.168.0.220')
 !! edit files/gitlab.rb (external_url 'http://192.168.0.220')
-> vagrant up gitlab_srv
+> vagrant up (irá subir a VM do GitLab e centos_srv02)
 > vagrant ssh gitlab_srv -c 'sudo cat /etc/gitlab/initial_root_password | grep Password:' (anotar!)
 
 http://192.168.0.220
@@ -59,7 +59,7 @@ Anotar token!
 Acessar servidor gitlab e executar o registro do Runner.
 > cd install
 > vagrant ssh gitlab_srv
-    $ sudo gitlab-runner register
+    $ sudo gitlab-runner register --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
     Enter the GitLab instance URL (for example, https://gitlab.com/):
         http://192.168.0.220
     Enter the registration token:
@@ -71,7 +71,7 @@ Acessar servidor gitlab e executar o registro do Runner.
     Enter an executor: ssh, docker-ssh+machine, custom, docker, docker-ssh, parallels, shell,virtualbox, docker+machine, kubernetes:
         docker                                                                                             
     Enter the default Docker image (for example, ruby:2.6):
-        ruby:2.6
+        docker:stable
 ```
 
 # Hello World com Pipeline
@@ -84,9 +84,9 @@ Irá conter todos os jobs e serviços que a pipeline irá executar.
 <br />
 Conteúdo .gitlab-ci.yml
 ```
-job1: (primeiro serviço/etapa)
+job1:
   script:
-    - echo "hello world"
+  - echo "hello world"
 ```
 
 Commit message
@@ -111,11 +111,93 @@ CI Lint para validação manual de código.
 <br />
 <br />
 
-# Download do projeto
+# Criar par de chaves VM GitLab
 ```
 > cd install
-> vagrant up centos_srv02
 > vagrant ssh centos_srv02
-    $
+    $ ssh-keygen -t rsa -b 4096 -C "fabio.kerber" (conta GitLab) (Enter 3x)
+    $ cat ~/.ssh/id_rsa.pub (anotar chave pública!)
+    $ cat ~/.ssh/id_rsa (anotar chave privada!)
+    $ git config --global user.name "fabio.kerber"
+    $ git config --global user.email "fabio.kerber@gmail.com"
+    $ git config --global push.default simple
+```
 
+Adicionar chave pública ao GitLab<br>
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220220842.jpg">
+</kbd>
+<br />
+<br />
+
+# Teste chave pública e download do projeto
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ ssh -T git@192.168.0.220 (yes)
+    $ cd ~ && git clone http://192.168.0.220/fabio.kerber/bytebank.git
+    $ cp -R /vagrant/files/devops/* ~/bytebank
+```
+
+# Primeiro commit
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ git add .
+    $ git commit -m "Apontando versionamento"
+    $ git push -f (força o push para a branch pois já existem arquivos lá)
+```
+
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220220910.jpg">
+</kbd>
+<br />
+<br />
+
+# Criando nova Pipeline
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+tarefa1:
+  script:
+  - echo "hello world"
+  - echo $date
+```
+```
+    $ git add . && git commit -m "Iniciando a pipeline" && git push
+```
+
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220220948.jpg">
+</kbd>
+<br />
+<br />
+
+# Build Dockerfile (aplicação)
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+services:
+- docker:dind:
+
+before_script:
+- docker info
+
+build-docker:
+    stage: build
+    script: 
+    - docker build -t minha-imagem .
+```
+```
+    $ git add . && git commit -m "Iniciando a pipeline" && git push
 ```
