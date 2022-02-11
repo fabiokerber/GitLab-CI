@@ -179,6 +179,7 @@ tarefa1:
 
 # Build Dockerfile (aplicação)
 O "services" e o "before_script" antes dos stages, então os mesmos serão executados em todos os jobs/stages.<br>
+O services: docker:dind" significa que utilizará o serviço docker para subir um container docker localmente.<br>
 Obs: dind = Docker in Docker<br>
 ```
 > cd install
@@ -320,3 +321,59 @@ Pipeline com os stages definidos e o segundo aguardando o primeiro finalizar com
 </kbd>
 <br />
 <br />
+
+# Concluindo o build do projeto
+Exemplo realizando login no DockerHub para publicar a imagem.<br>
+Obs:<br>
+1. Removido o services e before_script da execução "geral".<br>
+2. Estas varíaveis também poderiam ser incluídas diretamente no GitLab, conforme visto anteriormente.<br>
+3. Variáveis criadas conforme arquivo env da aplicação.<br>
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+stages:
+- pre-build
+- build
+- test
+- deploy
+
+build-docker:
+  stage: pre-build
+  tags:
+  - executor-tarefas
+  script:
+  - docker build -t minha-imagem .
+
+build-project:
+  image: minha-imagem
+  services:
+  - docker:dind
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  stage: build
+  image: minha-imagem
+  tags:
+  - executor-tarefas
+  dependencies:
+  - build-docker
+  script:
+  - python manage.py makemigrations
+  - python manage.py migrate
+```
