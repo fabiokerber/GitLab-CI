@@ -172,7 +172,7 @@ tarefa1:
 ```
 
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220220948.jpg">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220220948.png">
 </kbd>
 <br />
 <br />
