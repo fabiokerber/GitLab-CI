@@ -178,6 +178,11 @@ tarefa1:
 <br />
 
 # Build Dockerfile (aplicação)
+before_script:<br>
+- docker info<br>
+<br>
+Executa o "docker info" antes de todos os jobs.<br>
+
 ```
 > cd install
 > vagrant ssh centos_srv02
@@ -188,15 +193,17 @@ tarefa1:
 image: docker:stable
 
 services:
-- docker:dind:
+  - docker:dind
 
 before_script:
-- docker info
+  - docker info
 
 build-docker:
-    stage: build
-    script: 
-    - docker build -t minha-imagem .
+  stage: build
+  tags:
+  - executor-tarefas
+  script:
+  - docker build -t minha-imagem .
 ```
 ```
     $ git add . && git commit -m "Iniciando a pipeline" && git push
@@ -214,18 +221,20 @@ Exemplo realizando login no DockerHub para publicar a imagem.<br>
 image: docker:stable
 
 services:
-- docker:dind:
+  - docker:dind
 
 before_script:
-- docker info
-- docker login - u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+  - docker info
+  - docker login - u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
 
 build-docker:
-    stage: build
-    script:
-    - docker build - t minha-imagem .
-    - docker tag minha-imagem <usuario_dockerhub>/minha-imagem: latest
-    - docker push <usuario_dockerhub>/minha-imagem: latest
+  stage: build
+  tags:
+  - executor-tarefas
+  script:
+  - docker build - t minha-imagem .
+  - docker tag minha-imagem <usuario_dockerhub>/minha-imagem: latest
+  - docker push <usuario_dockerhub>/minha-imagem: latest
 ```
 Essas mesmas variáveis serão configuradas dentro da pipeline.
 <kbd>
@@ -258,3 +267,44 @@ Essas mesmas variáveis serão configuradas dentro da pipeline.
 </kbd>
 <br />
 <br />
+
+# Dependência no build
+Adicionando as dependências da aplicação e utilizando a tag "executor-tarefas".<br>
+Utilizando esta tag, o GitLab sabe qual runner ele irá utilizar.<br>
+Já as dependências "forçam" uma sequência, ou seja, uma determinada etapa só será executada, quando a anterior for realizada com sucesso.<br>
+GitLab se divide em três passos:<br>
+1. Build<br>
+2. Testes<br>
+3. Deploy<br>
+
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+services:
+- docker:dind
+
+before_script:
+- docker info
+
+build-docker:
+  stage: build
+  tags:
+  - executor-tarefas
+  script:
+  - docker build -t minha-imagem .
+
+build-project:
+  stage: build
+  tags:
+  - executor-tarefas
+  dependencies:
+  - build-docker
+  script:
+  - echo "runner"
+```
