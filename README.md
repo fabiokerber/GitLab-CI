@@ -67,9 +67,9 @@ Acessar servidor gitlab e executar o registro do Runner.
     Enter a description for the runner:
         [gitlab-srv]: DockerRunner
     Enter tags for the runner (comma-separated):
-        "Enter"
+        executor-tarefas
     Enter an executor: ssh, docker-ssh+machine, custom, docker, docker-ssh, parallels, shell,virtualbox, docker+machine, kubernetes:
-        docker                                                                                             
+        docker
     Enter the default Docker image (for example, ruby:2.6):
         docker:stable
 ```
