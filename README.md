@@ -398,9 +398,112 @@ build-project:
   tags:
   - executor-tarefas
 ```
-
 <kbd>
     <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220220913.png">
+</kbd>
+<br />
+<br />
+
+# Realizando testes unitários
+Obs:<br>
+1. Por se tratar de uma aplicação em pyhon (build-project), o teste será realizado com o .<br>
+2. Este teste unitário (python -m unittest setUp), já foi desenvolvido na aplicação.<br>
+3. Os testes podem ser realizados em paralelo aos stages.<br>
+4. Durante o teste é necessário a conexão com o banco de dados...<br>
+
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+stages:
+- pre-build
+- build
+- test
+- deploy
+
+build-docker:
+  services:
+  - docker:dind
+
+  before_script:
+  - docker info
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+  stage: pre-build
+  script:
+  - docker build -t minha-imagem .
+  - docker tag minha-imagem fabiokerber/minha-imagem:latest
+  - docker push fabiokerber/minha-imagem:latest
+
+  tags:
+  - executor-tarefas
+
+build-project:
+  stage: build
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-docker
+
+  script:
+  - python manage.py makemigrations
+  - python manage.py migrate
+
+  tags:
+  - executor-tarefas
+
+test-project:
+  stage: test
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-project
+
+  script:
+  - python -m unittest setUp
+
+  tags:
+  - executor-tarefas
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220221307.png">
 </kbd>
 <br />
 <br />
