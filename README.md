@@ -547,6 +547,7 @@ Anotar o novo token para este runner (Settings > CI/CD > Runners).
 </kbd>
 <br />
 <br />
+
 ```
 > cd install
 > vagrant ssh centos_srv02
