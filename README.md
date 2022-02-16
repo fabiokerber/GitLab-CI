@@ -516,7 +516,6 @@ Obs:<br>
 
 ```
 Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Gitlab > Centos.
-
 > cd install
 > vagrant ssh gitlab_srv
     $ ssh-keygen -t rsa (Enter 3x)
