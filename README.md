@@ -261,6 +261,11 @@ Essas mesmas variáveis serão configuradas dentro da pipeline.
 <br />
 <br />
 <kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220220846.png">
+</kbd>
+<br />
+<br />
+<kbd>
     <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/110220221103.png">
 </kbd>
 <br />
@@ -328,6 +333,7 @@ Obs:<br>
 1. Removido o services e before_script da execução "geral".<br>
 2. Estas varíaveis também poderiam ser incluídas diretamente no GitLab, conforme visto anteriormente.<br>
 3. Variáveis criadas conforme arquivo env da aplicação.<br>
+4. Imagem enviada ao Docker Hub.<br>
 ```
 > cd install
 > vagrant ssh centos_srv02
@@ -344,16 +350,28 @@ stages:
 - deploy
 
 build-docker:
-  stage: pre-build
-  tags:
-  - executor-tarefas
-  script:
-  - docker build -t minha-imagem .
-
-build-project:
-  image: minha-imagem
   services:
   - docker:dind
+
+  before_script:
+  - docker info
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+  stage: pre-build
+  script:
+  - docker build -t minha-imagem .
+  - docker tag minha-imagem fabiokerber/minha-imagem:latest
+  - docker push fabiokerber/minha-imagem:latest
+
+  tags:
+  - executor-tarefas
+
+build-project:
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
   - mysql:5.7
   variables:
     MYSQL_USER: devops_dev
@@ -361,19 +379,28 @@ build-project:
     MYSQL_DATABASE: todo_dev
     MYSQL_ROOT_PASSWORD: senha  
     DB_NAME: 'todo_dev'
-    DB USER: 'devops_dev'
+    DB_USER: 'devops_dev'
     DB_PASSWORD: 'mestre'
     DB_PORT: '3306'
     DB_HOST: 'mysql'
     SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
 
   stage: build
-  image: minha-imagem
-  tags:
-  - executor-tarefas
+  image: fabiokerber/minha-imagem:latest
+
   dependencies:
   - build-docker
+
   script:
   - python manage.py makemigrations
   - python manage.py migrate
+
+  tags:
+  - executor-tarefas
 ```
+
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220220914.png">
+</kbd>
+<br />
+<br />
