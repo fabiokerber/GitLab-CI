@@ -410,7 +410,7 @@ Obs:<br>
 2. Este teste unitário (python -m unittest setUp), já foi desenvolvido na aplicação.<br>
 3. Os testes podem ser realizados em paralelo aos stages.<br>
 4. Durante o teste é necessário a conexão com o banco de dados...<br>
-
+5. Por segurança e boas práticas, deve-se utilizar varíaveis direto no Gitlab da mesma forma com o login do docker... (MYSQL_USER: $DB_USER).<br>
 ```
 > cd install
 > vagrant ssh centos_srv02
@@ -507,3 +507,144 @@ test-project:
 </kbd>
 <br />
 <br />
+
+# Configurando runner para deploy
+Obs:<br>
+1. Ao invés de utilizarmos o runner docker (executor-tarefas), utilizaremos um runner mais leve.<br>
+2. Serão realizadas tarefas básicas: compressão de todos os arquivos, envio remoto para outro servidor,
+3. Para o envio dos arquivos automaticamente do Gitlab (onde está executando o runner), para outro servidor, é necessário criar o par de chaves entre os dois pontos para que não solicite credenciais durante o processo.<br>
+
+```
+Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Gitlab > Centos.
+
+> cd install
+> vagrant ssh gitlab_srv
+    $ ssh-keygen -t rsa (Enter 3x)
+    $ cat ~/.ssh/id_rsa.pub
+
+> cd install
+> vagrant ssh centos-srv02
+    $ vi ~/.ssh/authorized_keys (Inserir chave pública do gitlab_srv)
+```
+```
+Anotar o novo token para este runner (Settings > CI/CD > Runners).
+> cd install
+> vagrant ssh gitlab_srv
+    $ sudo gitlab-runner register
+    Enter the GitLab instance URL (for example, https://gitlab.com/):
+        http://192.168.0.220
+    Enter the registration token:
+        "token"
+    Enter a description for the runner:
+        [gitlab-srv]: RunnerDeploy
+    Enter tags for the runner (comma-separated):
+        executor-deploy
+    Enter an executor: ssh, docker-ssh+machine, custom, docker, docker-ssh, parallels, shell,virtualbox, docker+machine, kubernetes:
+        shell
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220221337.png">
+</kbd>
+<br />
+<br />
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+stages:
+- pre-build
+- build
+- test
+- deploy
+
+build-docker:
+  services:
+  - docker:dind
+
+  before_script:
+  - docker info
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+  stage: pre-build
+  script:
+  - docker build -t minha-imagem .
+  - docker tag minha-imagem fabiokerber/minha-imagem:latest
+  - docker push fabiokerber/minha-imagem:latest
+
+  tags:
+  - executor-tarefas
+
+build-project:
+  stage: build
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-docker
+
+  script:
+  - python manage.py makemigrations
+  - python manage.py migrate
+
+  tags:
+  - executor-tarefas
+
+test-project:
+  stage: test
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-project
+
+  script:
+  - python -m unittest setUp
+
+  tags:
+  - executor-tarefas
+
+deploy-project:
+  stage: deploy
+
+  script:
+  - tar cfs arquivos.tgz *
+  - 
+
+  tags:
+  - executor-tarefas
+```
