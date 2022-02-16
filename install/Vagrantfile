@@ -10,7 +10,7 @@ Vagrant.configure('2') do |config|
         gitlab_srv.vm.network 'public_network', ip: ENV['GITLAB_IP'], bridge: ENV['INTERFACE_LAN']
 
         gitlab_srv.vm.provision 'shell', inline: 'sudo timedatectl set-timezone America/Sao_Paulo'
-        gitlab_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/files/crontab.sh /etc/cron.hourly/'
+        gitlab_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/files/ntpdate.sh /etc/cron.hourly/'
         gitlab_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
         gitlab_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
         gitlab_srv.vm.provision 'shell', inline: 'sudo apt-get update'
@@ -43,10 +43,14 @@ Vagrant.configure('2') do |config|
         centos_srv02.vm.network 'public_network', ip: ENV['CENTOS_SRV02'], bridge: ENV['INTERFACE_LAN']
 
         centos_srv02.vm.provision 'shell', inline: 'sudo timedatectl set-timezone America/Sao_Paulo'
-        centos_srv02.vm.provision 'shell', inline: 'sudo cp /vagrant/files/crontab.sh /etc/cron.hourly/'
+        centos_srv02.vm.provision 'shell', inline: 'sudo cp /vagrant/files/ntpdate.sh /etc/cron.hourly/'
         centos_srv02.vm.provision 'shell', inline: 'sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config && sudo setenforce 0'
         centos_srv02.vm.provision 'shell', inline: 'sudo systemctl stop firewalld && sudo systemctl disable firewalld'
         centos_srv02.vm.provision 'shell', inline: 'sudo yum install -y git ntpdate'
+        centos_srv02.vm.provision 'shell', inline: 'sudo curl -fsSL https://get.docker.com/ | sh'
+        centos_srv02.vm.provision 'shell', inline: 'sudo systemctl start docker && sudo systemctl enable docker'
+        centos_srv02.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+        centos_srv02.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
 
         centos_srv02.vm.provider 'virtualbox' do |vb|
             vb.memory = 1024

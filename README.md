@@ -513,17 +513,20 @@ Obs:<br>
 1. Ao invés de utilizarmos o runner docker (executor-tarefas), utilizaremos um runner mais leve.<br>
 2. Serão realizadas tarefas básicas: compressão de todos os arquivos, envio remoto para outro servidor,
 3. Para o envio dos arquivos automaticamente do Gitlab (onde está executando o runner), para outro servidor, é necessário criar o par de chaves entre os dois pontos para que não solicite credenciais durante o processo.<br>
-
+4. Realizar a mesma etapa duas vezes, caso possa ocorrer um problema que já é conhecido. "retry: 2".<br>
+5. Deploy não funcionou... :( <br>
 ```
 Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Gitlab > Centos.
 > cd install
 > vagrant ssh gitlab_srv
-    $ ssh-keygen -t rsa (Enter 3x)
-    $ cat ~/.ssh/id_rsa.pub
+    $ sudo passwd gitlab-runner (gitlab)
+    $ su gitlab-runner
+        $ ssh-keygen -t rsa (Enter 3x)
+        $ cat ~/.ssh/id_rsa.pub (anotar!)
 
 > cd install
 > vagrant ssh centos-srv02
-    $ vi ~/.ssh/authorized_keys (Inserir chave pública do gitlab_srv)
+    $ vi ~/.ssh/authorized_keys (Inserir chave pública do gitlab-runner@gitlab_srv)
 ```
 ```
 Anotar o novo token para este runner (Settings > CI/CD > Runners).
@@ -566,6 +569,8 @@ build-docker:
   services:
   - docker:dind
 
+  retry: 2
+
   before_script:
   - docker info
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
@@ -582,6 +587,8 @@ build-docker:
 build-project:
   stage: build
   image: fabiokerber/minha-imagem:latest
+
+  retry: 2
 
   services:
   - docker:dind
@@ -641,10 +648,14 @@ test-project:
 deploy-project:
   stage: deploy
 
+  dependencies:
+  - test-project
+
   script:
-  - tar cfs arquivos.tgz *
-  - 
+  - tar cfz arquivos.tgz *
+  - scp arquivos.tgz vagrant@192.168.0.221:/tmp/
+  - ssh vagrant@192.168.0.221 'cd /tmp; tar xfz arquivos.tgz; /usr/local/bin/docker-compose up -d'
 
   tags:
-  - executor-tarefas
+  - executor-deploy
 ```
