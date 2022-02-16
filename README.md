@@ -400,7 +400,7 @@ build-project:
 ```
 
 <kbd>
-    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220220914.png">
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220220913.png">
 </kbd>
 <br />
 <br />
