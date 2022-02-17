@@ -516,7 +516,7 @@ Obs:<br>
 4. Realizar a mesma etapa duas vezes, caso possa ocorrer um problema que já é conhecido. "retry: 2".<br>
 
 ```
-Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Gitlab > Centos.
+Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Container gitlab-runner Gitlab > Centos.
 > cd install
 > vagrant ssh gitlab_srv
     $ sudo docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
