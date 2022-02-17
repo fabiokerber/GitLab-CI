@@ -511,16 +511,17 @@ test-project:
 # Configurando runner para deploy
 Obs:<br>
 1. Ao invés de utilizarmos o runner docker (executor-tarefas), utilizaremos um runner mais leve.<br>
-2. Serão realizadas tarefas básicas: compressão de todos os arquivos, envio remoto para outro servidor,
-3. Para o envio dos arquivos automaticamente do Gitlab (onde está executando o runner), para outro servidor, é necessário criar o par de chaves entre os dois pontos para que não solicite credenciais durante o processo.<br>
+2. Serão realizadas tarefas básicas: compressão de todos os arquivos, envio remoto para outro servidor e inicialização da aplicação utilizando o docker compose.<br> 
+3. Para o envio dos arquivos automaticamente de um container que será executado no Gitlab para outro servidor, é necessário criar o par de chaves entre os dois pontos para que não solicite credenciais durante o processo.<br>
 4. Realizar a mesma etapa duas vezes, caso possa ocorrer um problema que já é conhecido. "retry: 2".<br>
-5. Deploy não funcionou... :( <br>
+
 ```
 Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Gitlab > Centos.
 > cd install
 > vagrant ssh gitlab_srv
-    $ sudo passwd gitlab-runner (gitlab)
-    $ su gitlab-runner
+    $ sudo docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
+    $ sudo docker exec -it gitlab-runner /bin/bash
+        # su gitlab-runner
         $ ssh-keygen -t rsa (Enter 3x)
         $ cat ~/.ssh/id_rsa.pub (anotar!)
 
@@ -532,17 +533,20 @@ Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre G
 Anotar o novo token para este runner (Settings > CI/CD > Runners).
 > cd install
 > vagrant ssh gitlab_srv
-    $ sudo gitlab-runner register
-    Enter the GitLab instance URL (for example, https://gitlab.com/):
-        http://192.168.0.220
-    Enter the registration token:
-        "token"
-    Enter a description for the runner:
-        [gitlab-srv]: RunnerDeploy
-    Enter tags for the runner (comma-separated):
-        executor-deploy
-    Enter an executor: ssh, docker-ssh+machine, custom, docker, docker-ssh, parallels, shell,virtualbox, docker+machine, kubernetes:
-        shell
+    $ sudo docker exec -it gitlab-runner /bin/bash
+        # gitlab-runner register
+        Enter the GitLab instance URL (for example, https://gitlab.com/):
+            http://192.168.0.220
+        Enter the registration token:
+            "token"
+        Enter a description for the runner:
+            [gitlab-srv]: RunnerDeploy
+        Enter tags for the runner (comma-separated):
+            executor-deploy
+        Enter an executor: ssh, docker-ssh+machine, custom, docker, docker-ssh, parallels, shell,virtualbox, docker+machine, kubernetes:
+            shell
+        # su gitlab-runner
+        $ ssh vagrant@192.168.0.221
 ```
 <kbd>
     <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/160220221337.png">
@@ -654,7 +658,7 @@ deploy-project:
   script:
   - tar cfz arquivos.tgz *
   - scp arquivos.tgz vagrant@192.168.0.221:/tmp/
-  - ssh vagrant@192.168.0.221 'cd /tmp; tar xfz arquivos.tgz; /usr/local/bin/docker-compose up -d'
+  - ssh vagrant@192.168.0.221 'cd /tmp; tar xfz arquivos.tgz; sudo /usr/local/bin/docker-compose up -d'
 
   tags:
   - executor-deploy

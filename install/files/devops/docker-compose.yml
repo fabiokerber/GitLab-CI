@@ -11,7 +11,7 @@ services:
         MYSQL_PASSWORD: 'mestre'
         MYSQL_ROOT_PASSWORD: 'senha'
   web:
-    image: jnlucas/minha-imagem:latest
+    image: fabiokerber/minha-imagem:latest
     volumes:
       - ./env:/usr/src/app/to_do/.env
     ports:
