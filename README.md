@@ -677,6 +677,17 @@ deploy-project:
 # Criando novo stage de notificação
 Obs:<br>
 1. Utilização de condição "when".<br>
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220221521.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220221522.png">
+</kbd>
+<br />
+<br />
+
 ```
 > cd install
 > vagrant ssh centos_srv02
@@ -787,11 +798,37 @@ deploy-project:
   tags:
   - executor-deploy
 
-notification-success
+notification-success:
   stage: notification
 
-  when: on_sucess
+  script:
+  - sh sucessNotification.sh
+
+  when: on_success
+
+  tags:
+  - executor-deploy
+
+notification-failure:
+  stage: notification
+
+  script:
+  - sh failureNotification.sh
+
+  when: on_failure
 
   tags:
   - executor-deploy
 ```
+
+<br>
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220221549.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220221550.png">
+</kbd>
+<br />
+<br />
