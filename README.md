@@ -514,7 +514,7 @@ Obs:<br>
 2. Serão realizadas tarefas básicas: compressão de todos os arquivos, envio remoto para outro servidor e inicialização da aplicação utilizando o docker compose.<br> 
 3. Para o envio dos arquivos automaticamente de um container que será executado no Gitlab para outro servidor, é necessário criar o par de chaves entre os dois pontos para que não solicite credenciais durante o processo.<br>
 4. Realizar a mesma etapa duas vezes, caso possa ocorrer um problema que já é conhecido. "retry: 2".<br>
-
+5. Utilizado "image: jnlucas/minha-imagem:latest" no docker-compose.yml, apenas para validações.<br>
 ```
 Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre Container gitlab-runner Gitlab > Centos.
 > cd install
@@ -527,7 +527,7 @@ Primeiramente vamos autorizar a comunicação via ssh sem autenticação entre C
 
 > cd install
 > vagrant ssh centos-srv02
-    $ vi ~/.ssh/authorized_keys (Inserir chave pública do gitlab-runner@gitlab_srv)
+    $ vi ~/.ssh/authorized_keys (Inserir chave pública)
 ```
 ```
 Anotar o novo token para este runner (Settings > CI/CD > Runners).
@@ -659,6 +659,138 @@ deploy-project:
   - tar cfz arquivos.tgz *
   - scp arquivos.tgz vagrant@192.168.0.221:/tmp/
   - ssh vagrant@192.168.0.221 'cd /tmp; tar xfz arquivos.tgz; sudo /usr/local/bin/docker-compose up -d'
+
+  tags:
+  - executor-deploy
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220220838.png">
+</kbd>
+<br />
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/GitLab-CI/blob/main/img/170220220840.png">
+</kbd>
+<br />
+<br />
+
+# Criando novo stage de notificação
+Obs:<br>
+1. Utilização de condição "when".<br>
+```
+> cd install
+> vagrant ssh centos_srv02
+    $ cd ~/bytebank
+    $ vi .gitlab-ci.yml 
+```
+```
+image: docker:stable
+
+stages:
+- pre-build
+- build
+- test
+- deploy
+- notification
+
+build-docker:
+  services:
+  - docker:dind
+
+  retry: 2
+
+  before_script:
+  - docker info
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+  stage: pre-build
+  script:
+  - docker build -t minha-imagem .
+  - docker tag minha-imagem fabiokerber/minha-imagem:latest
+  - docker push fabiokerber/minha-imagem:latest
+
+  tags:
+  - executor-tarefas
+
+build-project:
+  stage: build
+  image: fabiokerber/minha-imagem:latest
+
+  retry: 2
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-docker
+
+  script:
+  - python manage.py makemigrations
+  - python manage.py migrate
+
+  tags:
+  - executor-tarefas
+
+test-project:
+  stage: test
+  image: fabiokerber/minha-imagem:latest
+
+  services:
+  - docker:dind
+
+  - mysql:5.7
+  variables:
+    MYSQL_USER: devops_dev
+    MYSQL_PASSWORD: mestre
+    MYSQL_DATABASE: todo_dev
+    MYSQL_ROOT_PASSWORD: senha  
+    DB_NAME: 'todo_dev'
+    DB_USER: 'devops_dev'
+    DB_PASSWORD: 'mestre'
+    DB_PORT: '3306'
+    DB_HOST: 'mysql'
+    SECRET_KEY: 'r*5ltfzw-61ksdm41fuul8+hxs$86yo9%k1%k=(!@=-wv4qtyv'
+
+  dependencies:
+  - build-project
+
+  script:
+  - python -m unittest setUp
+
+  tags:
+  - executor-tarefas
+
+deploy-project:
+  stage: deploy
+
+  dependencies:
+  - test-project
+
+  script:
+  - tar cfz arquivos.tgz *
+  - scp arquivos.tgz vagrant@192.168.0.221:/tmp/
+  - ssh vagrant@192.168.0.221 'cd /tmp; tar xfz arquivos.tgz; sudo /usr/local/bin/docker-compose up -d'
+
+  tags:
+  - executor-deploy
+
+notification-success
+  stage: notification
+
+  when: on_sucess
 
   tags:
   - executor-deploy
