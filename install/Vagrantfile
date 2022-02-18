@@ -14,7 +14,7 @@ Vagrant.configure('2') do |config|
         gitlab_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
         gitlab_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
         gitlab_srv.vm.provision 'shell', inline: 'sudo apt-get update'
-        gitlab_srv.vm.provision 'shell', inline: 'sudo apt-get install -y docker-ce ca-certificates curl openssh-server python'
+        gitlab_srv.vm.provision 'shell', inline: 'sudo apt-get install -y docker-ce ca-certificates curl openssh-server python ntpdate'
         gitlab_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
         gitlab_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
         gitlab_srv.vm.provision 'shell', inline: 'sudo curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash'
