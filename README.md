@@ -832,3 +832,24 @@ notification-failure:
 </kbd>
 <br />
 <br />
+
+# Comandos Git
+```
+git clone https://<usuario>@projeto...
+git restore --staged .terraform/* (.terraform/* "removerá" somente esses arquivos do que está pronto para ser enviado ao Git)
+
+> Download git exemplo
+> Criado pasta e movimentação do conteúdo de exemplo para a nova pasta
+$ code . (Editar sempre de dentro do WSL)
+> Criado .gitignore
+$ git config --global user.name "FABIO KERBER DA SILVA"
+$ git config --global user.email "fabio.kerber@gmail.com.br"
+$ git config --global credential.helper cache
+$ git config --system core.autocrlf false (Somente Windows. Evitar problema arquivo criado no Windows e lido no Linux)
+$ git init
+$ git add --all
+$ git status (checar)
+$ git commit -m "Commit Inicial"
+$ git remote add origin https://github.com/fabiokerber/GitLab-CI.git (Criado repositório e se manual, setado as permissões...)
+$ git push -u origin master
+```
