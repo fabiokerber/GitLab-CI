@@ -847,8 +847,8 @@ $ git config --global user.email "fabio.kerber@gmail.com.br"
 $ git config --global credential.helper cache
 $ git config --system core.autocrlf false (Somente Windows. Evitar problema arquivo criado no Windows e lido no Linux)
 $ git init
+$ git status (checar o que foi modificado antes de adicionar!!)
 $ git add --all
-$ git status (checar)
 $ git commit -m "Commit Inicial"
 $ git remote add origin https://github.com/fabiokerber/GitLab-CI.git (Criado repositório e se manual, setado as permissões...)
 $ git push -u origin master
