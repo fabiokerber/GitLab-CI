@@ -63,7 +63,7 @@ Acessar servidor gitlab e executar o registro do Runner.
 > vagrant ssh gitlab_srv
     $ sudo gitlab-runner register --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
     Enter the GitLab instance URL (for example, https://gitlab.com/):
-        http://192.168.0.220
+        http://192.168.56.11
     Enter the registration token:
         "token"
     Enter a description for the runner:
@@ -136,8 +136,8 @@ Adicionar chave pública ao GitLab<br>
 ```
 > cd install
 > vagrant ssh centos_srv02
-    $ ssh -T git@192.168.0.220 (yes)
-    $ cd ~ && git clone http://192.168.0.220/fabio.kerber/bytebank.git
+    $ ssh -T git@192.168.56.11 (yes)
+    $ cd ~ && git clone http://192.168.56.11/fabio.kerber/bytebank.git
     $ cp -R /vagrant/files/devops/* ~/bytebank
 ```
 
