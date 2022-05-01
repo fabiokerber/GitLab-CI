@@ -16,6 +16,8 @@ Composta por jobs, são exatamente as etapas que a pipeline deve executar.<br>
 > cd install
 !! edit .env (GITLAB_IP='192.168.0.220')
 !! edit files/gitlab.rb (external_url 'http://192.168.0.220')
+> vagrant plugin install vagrant-disksize (permite alteração de tamanho do disco à ser criado)
+> vagrant plugin install vagrant-env (permite trabalhar com variáveis)
 > vagrant up (irá subir a VM do GitLab e centos_srv02)
 > vagrant ssh gitlab_srv -c 'sudo cat /etc/gitlab/initial_root_password | grep Password:' (anotar!)
 

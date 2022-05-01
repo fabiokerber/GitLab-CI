@@ -1,1 +1,1 @@
-external_url 'http://192.168.0.220'
+external_url 'http://192.168.56.11'
